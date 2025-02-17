@@ -13,9 +13,6 @@ public class Standard_Calculation_Function {
 	public String BaseURL = "https://aceship.github.io/AN-EN-Tags/index.html";
 	String driverPath = "C:\\chromedriver.exe";
 	public WebDriver driver;
-
-	public String expectedTitle = null;
-	public String actualTitle = null;
 	
 	@BeforeTest
 	public void launchBrowser() throws InterruptedException {
