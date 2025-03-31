@@ -6,7 +6,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
-// import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -33,87 +33,46 @@ public class Standard_Calculation_Function {
 	}
 
 	@Test(priority = 1)
-	public void Form_Fill() {
-	    // Rarity
-	    WebElement Rarity = driver.findElement(By.id("star"));
-	    Select dropdown = new Select(Rarity);
-	    dropdown.selectByVisibleText("6");
-	    String rarity = dropdown.getFirstSelectedOption().getText();
-	    System.out.println("Giá trị Rarity: " + rarity);
+	public void Form_Fill() throws InterruptedException {
+	    // Chọn Rarity
+	    selectDropdown("star", "6");
 
-	    // Current Elite
-	    WebElement C_Elite = driver.findElement(By.id("current-evolve"));
-	    Select dropdown_CElite = new Select(C_Elite);
-	    dropdown_CElite.selectByVisibleText("0");
-	    String celite = dropdown_CElite.getFirstSelectedOption().getText();
-	    System.out.println("Giá trị Current Elite: " + celite);
+	    // Chọn Current Elite
+	    selectDropdown("current-evolve", "0");
 
-	    // Target Elite
-	    WebElement T_Elite = driver.findElement(By.id("target-evolve"));
-	    Select dropdown_TElite = new Select(T_Elite);
-	    dropdown_TElite.selectByVisibleText("2");
-	    String telite = dropdown_TElite.getFirstSelectedOption().getText();
-	    System.out.println("Giá trị Target Elite: " + telite);
+	    // Chọn Target Elite
+	    selectDropdown("target-evolve", "2");
 
-	    // Current Level
-	    WebElement C_Level = driver.findElement(By.id("current-level"));
-	    C_Level.clear();
-	    C_Level.sendKeys("1");
-	    String clevel = C_Level.getAttribute("value");
-	    System.out.println("Giá trị Current Level: " + clevel);
+	    // Nhập giá trị sai để tạo lỗi
+	    setInputValue("current-level", "1");
+	    setInputValue("target-level", "90");
 
-	    // Target Level
-	    WebElement T_Level = driver.findElement(By.id("target-level"));
-	    T_Level.clear();
-	    T_Level.sendKeys("90");
-	    String tlevel = T_Level.getAttribute("value");
-	    System.out.println("Giá trị Target Level: " + tlevel);
+	    // Nhấn Calculate
+	    driver.findElement(By.id("btn-calculate")).click();
 
-	    // Current EXP
-	    WebElement Current_EXP = driver.findElement(By.id("current-exp"));
-	    Current_EXP.clear();
-	    Current_EXP.sendKeys("10");
-	    String exp = Current_EXP.getAttribute("value");
-	    System.out.println("Giá trị Current EXP: " + exp);
+	    // Kiểm tra phần tử lỗi
+	    WebElement errorInfo = driver.findElement(By.id("error-info"));
+	    if (errorInfo.isDisplayed()) {
+	        System.out.println("Lỗi: " + errorInfo.getText());
+	    } else {
+	        System.out.println("Không xảy ra lỗi");
+	    }
+	}
 
-	    // Current Resource_L
-	    WebElement LMD = driver.findElement(By.id("gold-asset"));
-	    LMD.clear();
-	    LMD.sendKeys("0");
-	    String lmd = LMD.getAttribute("value");
-	    System.out.println("Giá trị Current Resource_LMD: " + lmd);
+	// Hàm kiểm tra và nhập giá trị vào input
+	private void setInputValue(String id, String value) {
+	    WebElement input = driver.findElement(By.id(id));
+	    input.clear();
+	    input.sendKeys(value);
+	    System.out.println("Nhập thành công: " + id + " = " + value);
+	}
 
-	    // Current Resource_G (book-basic)
-	    WebElement Green = driver.findElement(By.id("book-basic"));
-	    Green.clear();
-	    Green.sendKeys("0");
-	    String green = Green.getAttribute("value");
-	    System.out.println("Giá trị Current Resource_G: " + green);
-
-	    // Current Resource_B (book-primary)
-	    WebElement Blue = driver.findElement(By.id("book-primary"));
-	    Blue.clear();
-	    Blue.sendKeys("0");
-	    String blue = Blue.getAttribute("value");
-	    System.out.println("Giá trị Current Resource_B: " + blue);
-
-	    // Current Resource_Y (book-middle)
-	    WebElement Yellow = driver.findElement(By.id("book-middle"));
-	    Yellow.clear();
-	    Yellow.sendKeys("0");
-	    String yellow = Yellow.getAttribute("value");
-	    System.out.println("Giá trị Current Resource_Y: " + yellow);
-
-	    // Current Resource_Go (book-advanced)
-	    WebElement Gold = driver.findElement(By.id("book-advanced"));
-	    Gold.clear();
-	    Gold.sendKeys("0");
-	    String gold = Gold.getAttribute("value");
-	    System.out.println("Giá trị Current Resource_Go: " + gold);
-
-	    // Button Calculate
-	    WebElement btn_Cal = driver.findElement(By.id("btn-calculate"));
-	    btn_Cal.click();
+	// Hàm chọn giá trị từ dropdown
+	private void selectDropdown(String id, String value) {
+	    WebElement dropdown = driver.findElement(By.id(id));
+	    Select select = new Select(dropdown);
+	    select.selectByVisibleText(value);
+	    System.out.println("Chọn thành công: " + id + " = " + value);
 	}
 
 
@@ -134,8 +93,8 @@ public class Standard_Calculation_Function {
 
 		// Set giá trị mong đợi
 		int expectedValue_S = 9810;
-		int expectedValue_E = 1111390;
-		int expectedValue_C = 1334793;
+		int expectedValue_E = 1111400;
+		int expectedValue_C = 1334796;
 
 		// Hiển thị giá trị thực
 		System.out.println("Giá trị Sanity thực tế : " + actualValue_S);
@@ -160,7 +119,7 @@ public class Standard_Calculation_Function {
 			System.out.println("Exp - Giá trị thực tế và giá trị mong đợi không giống nhau");
 		}
 
-		if (actualValue_E == expectedValue_E) {
+		if (actualValue_C == expectedValue_C) {
 			System.out.println("Coin - Giá trị thực tế và giá trị mong đợi giống nhau");
 		} else {
 			System.out.println("Coin - Giá trị thực tế và giá trị mong đợi không giống nhau");
@@ -169,5 +128,10 @@ public class Standard_Calculation_Function {
 		Assert.assertEquals(actualValue_S, expectedValue_S);
 		Assert.assertEquals(actualValue_E, expectedValue_E);
 		Assert.assertEquals(actualValue_C, expectedValue_C);
+	}
+	@AfterTest
+	public void close() {
+		driver.quit();
+		System.out.println("Đóng trình duyệt");
 	}
 }

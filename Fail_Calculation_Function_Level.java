@@ -6,18 +6,17 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
-// import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 public class Fail_Calculation_Function_Level {
-	public String BaseURL = "https://aceship.github.io/AN-EN-Tags/index.html";
+	public String BaseURL = "https://puppiizsunniiz.github.io/AN-EN-Tags/index.html";
 	String driverPath = "C:\\chromedriver.exe";
 	public WebDriver driver;
 
 	@BeforeTest
 	public void launchBrowser() throws InterruptedException {
-		System.out.println("Chạy trình duyệt Chrome");
 		System.setProperty("webdriver.chrome.driver", driverPath);
 		driver = new ChromeDriver();
 		driver.get(BaseURL);
@@ -34,81 +33,112 @@ public class Fail_Calculation_Function_Level {
 	}
 
 	@Test(priority = 1)
-	public void Form_Fill() {
-		// Rarity
-		WebElement Rarity = driver.findElement(By.id("star"));
-		Select dropdown = new Select(Rarity);
-		dropdown.selectByVisibleText("6");
+	public void Form_Fill() throws InterruptedException {
+	    // Chọn Rarity
+	    selectDropdown("star", "6");
 
-		// Current Elite
-		WebElement C_Elite = driver.findElement(By.id("current-evolve"));
-		Select dropdown_CElite = new Select(C_Elite);
-		dropdown_CElite.selectByVisibleText("0");
+	    // Chọn Current Elite
+	    selectDropdown("current-evolve", "2");
 
-		// Target Elite
-		WebElement T_Elite = driver.findElement(By.id("target-evolve"));
-		Select dropdown_TElite = new Select(T_Elite);
-		dropdown_TElite.selectByVisibleText("0");
+	    // Chọn Target Elite
+	    selectDropdown("target-evolve", "1");
 
-		// Current Level
-		WebElement C_Level = driver.findElement(By.id("current-level"));
-		C_Level.clear();
-		C_Level.sendKeys("2");
+	    // Nhập giá trị sai để tạo lỗi
+	    setInputValue("current-level", "90");
+	    setInputValue("target-level", "50");
 
-		// Target Level
-		WebElement T_Level = driver.findElement(By.id("target-level"));
-		T_Level.clear();
-		T_Level.sendKeys("1"); //FAIL INPUT ("The target level cannot be lower than or equal to the current level.")
+	    // Nhấn Calculate
+	    driver.findElement(By.id("btn-calculate")).click();
 
-		// Current EXP
-		WebElement Current_EXP = driver.findElement(By.id("current-exp"));
-		Current_EXP.clear();
-		Current_EXP.sendKeys("10");
-
-		// Current Resource_L
-		WebElement LMD = driver.findElement(By.id("gold-asset"));
-		LMD.clear();
-		LMD.sendKeys("0");
-
-		// Current Resource_G
-		WebElement Green = driver.findElement(By.id("book-basic"));
-		Green.clear();
-		Green.sendKeys("0");
-
-		// Current Resource_B
-		WebElement Blue = driver.findElement(By.id("book-primary"));
-		Blue.clear();
-		Blue.sendKeys("0");
-
-		// Current Resource_Y
-		WebElement Yellow = driver.findElement(By.id("book-middle"));
-		Yellow.clear();
-		Yellow.sendKeys("0");
-
-		// Current Resource_Go
-		WebElement Gold = driver.findElement(By.id("book-advanced"));
-		Gold.clear();
-		Gold.sendKeys("0");
-
-		// Button Calculate
-		WebElement btn_Cal = driver.findElement(By.id("btn-calculate"));
-		btn_Cal.click();
+	    // Kiểm tra phần tử lỗi
+	    WebElement errorInfo = driver.findElement(By.id("error-info"));
+	    if (errorInfo.isDisplayed()) {
+	        System.out.println("Lỗi: " + errorInfo.getText());
+	    } else {
+	        System.out.println("Không xảy ra lỗi");
+	    }
 	}
+
+	// Hàm kiểm tra và nhập giá trị vào input
+	private void setInputValue(String id, String value) {
+	    WebElement input = driver.findElement(By.id(id));
+	    input.clear();
+	    input.sendKeys(value);
+
+	    // Kiểm tra xem giá trị có hợp lệ hay không
+	    String enteredValue = input.getAttribute("value");
+	    if (!enteredValue.equals(value)) {
+	        throw new IllegalArgumentException("Giá trị nhập vào không hợp lệ: " + value);
+	    }
+
+	    System.out.println("Nhập thành công: " + id + " = " + value);
+	}
+
+	// Hàm chọn giá trị từ dropdown
+	private void selectDropdown(String id, String value) {
+	    WebElement dropdown = driver.findElement(By.id(id));
+	    Select select = new Select(dropdown);
+	    select.selectByVisibleText(value);
+	    System.out.println("Chọn thành công: " + id + " = " + value);
+	}
+
 
 	@Test(priority = 2)
 	public void ResultComparing() {
 		// Lấy giá trị thực đã tính
 		WebElement totalSan = driver.findElement(By.xpath("/html/body/div[4]/div[1]/div[2]/table/tbody/tr[1]/td/b"));
+		WebElement totalExp = driver.findElement(By.xpath("//*[@id=\"tbody-result\"]/tr[2]/td/b"));
+		WebElement totalCoin = driver.findElement(By.xpath("//*[@id=\"tbody-result\"]/tr[4]/td/b"));
+
 		String Sanity = totalSan.getText();
+		String Exp = totalExp.getText();
+		String Coin = totalCoin.getText();
+
 		int actualValue_S = Integer.parseInt(Sanity);
+		int actualValue_E = Integer.parseInt(Exp);
+		int actualValue_C = Integer.parseInt(Coin);
 
 		// Set giá trị mong đợi
 		int expectedValue_S = 9810;
+		int expectedValue_E = 1111390;
+		int expectedValue_C = 1334793;
 
 		// Hiển thị giá trị thực
-		System.out.println("Sanity: " + actualValue_S);
+		System.out.println("Giá trị Sanity thực tế : " + actualValue_S);
+		System.out.println("Giá trị Sanity mong đợi: " + expectedValue_S);
 
-		// So sánh giá trị thực và giá trị mong đợi
+		System.out.println("Giá trị Exp thực tế : " + actualValue_E);
+		System.out.println("Giá trị Exp mong đợi: " + expectedValue_E);
+
+		System.out.println("Giá trị Coin thực tế : " + actualValue_C);
+		System.out.println("Giá trị Coin mong đợi: " + expectedValue_C);
+
+		// Kiểm tra nếu giá trị thực và mong đợi trùng nhau
+		if (actualValue_S == expectedValue_S) {
+			System.out.println("Sanity - Giá trị thực tế và giá trị mong đợi giống nhau");
+		} else {
+			System.out.println("Sanity - Giá trị thực tế và giá trị mong đợi không giống nhau");
+		}
+
+		if (actualValue_E == expectedValue_E) {
+			System.out.println("Exp - Giá trị thực tế và giá trị mong đợi giống nhau");
+		} else {
+			System.out.println("Exp - Giá trị thực tế và giá trị mong đợi không giống nhau");
+		}
+
+		if (actualValue_C == expectedValue_C) {
+			System.out.println("Coin - Giá trị thực tế và giá trị mong đợi giống nhau");
+		} else {
+			System.out.println("Coin - Giá trị thực tế và giá trị mong đợi không giống nhau");
+		}
+
 		Assert.assertEquals(actualValue_S, expectedValue_S);
+		Assert.assertEquals(actualValue_E, expectedValue_E);
+		Assert.assertEquals(actualValue_C, expectedValue_C);
+	}
+	@AfterTest
+	public void close() {
+		driver.quit();
+		System.out.println("Đóng trình duyệt");
 	}
 }
